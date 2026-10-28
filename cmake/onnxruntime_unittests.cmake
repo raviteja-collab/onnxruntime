@@ -2555,6 +2555,13 @@ endif()
       "${TEST_SRC_DIR}/mlas/unittest/*.h"
       "${TEST_SRC_DIR}/mlas/unittest/*.cpp"
     )
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "^riscv64")
+      # test_sqnbitgemm_2bit_gemm.cpp unconditionally includes AVX512/AVX2 kernel
+      # headers whose non-inline functions are only compiled for x86 targets,
+      # causing unresolved symbol errors when linking the RISC-V test binary.
+      list(REMOVE_ITEM onnxruntime_mlas_test_src
+        "${TEST_SRC_DIR}/mlas/unittest/test_sqnbitgemm_2bit_gemm.cpp")
+    endif()
     onnxruntime_add_executable(onnxruntime_mlas_test ${onnxruntime_mlas_test_src})
     if(MSVC)
       target_compile_options(onnxruntime_mlas_test PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:--compiler-options /wd26409>"
